@@ -166,7 +166,7 @@ class ConfirmationSliderState extends State<ConfirmationSlider> {
     } else {
       style = widget.textStyle!;
     }
-
+    bool isFinish = getPosition() + widget.height == widget.width;
     return AnimatedContainer(
       duration: Duration(milliseconds: _duration),
       curve: Curves.ease,
@@ -177,62 +177,97 @@ class ConfirmationSliderState extends State<ConfirmationSlider> {
             BorderRadius.all(Radius.circular(widget.height)),
         color: widget.backgroundColorEnd != null
             ? this.calculateBackground()
-            : widget.backgroundColor,
+            : isFinish ? Colors.transparent : widget.backgroundColor,
         // boxShadow: <BoxShadow>[shadow],
       ),
       child: Stack(
         children: <Widget>[
-          Center(
-            child: Text(
-              widget.text,
-              style: style,
-            ),
-          ),
-          Positioned(
-            // left: widget.height / 2,
-            child: AnimatedContainer(
-              height: widget.height,
-              width: getPosition() + widget.height,
-              duration: Duration(milliseconds: _duration),
-              curve: Curves.ease,
-              decoration: BoxDecoration(
-                borderRadius: widget.backgroundShape ??
-                    BorderRadius.all(Radius.circular(widget.height)),
-                color: widget.backgroundColorEnd != null ? this
-                    .calculateBackground() : widget.foregroundColor,
+          Visibility(
+            visible: !isFinish,
+            child: Center(
+              child: Text(
+                widget.text,
+                style: style,
               ),
             ),
           ),
-          AnimatedPositioned(
-            duration: Duration(milliseconds: _duration),
-            curve: Curves.bounceOut,
-            left: getPosition(),
-            top: 0,
-            child: GestureDetector(
-              onTapDown: (_) =>
-              widget.onTapDown != null
-                  ? widget.onTapDown!()
-                  : null,
-              onTapUp: (_) => widget.onTapUp != null ? widget.onTapUp!() : null,
-              onPanUpdate: (details) {
-                updatePosition(details);
-              },
-              onPanEnd: (details) {
-                if (widget.onTapUp != null) widget.onTapUp!();
-                // sliderReleased(details);
-              },
-              child: Container(
+          Visibility(
+            visible: !isFinish,
+            child: Positioned(
+              // left: widget.height / 2,
+              child: AnimatedContainer(
                 height: widget.height,
-                width: widget.height,
+                width: getPosition() + widget.height,
+                duration: Duration(milliseconds: _duration),
+                curve: Curves.ease,
                 decoration: BoxDecoration(
-                  borderRadius: widget.foregroundShape ??
-                      BorderRadius.all(Radius.circular(widget.height / 2)),
-                  color: widget.foregroundColor,
+                  borderRadius: widget.backgroundShape ??
+                      BorderRadius.all(Radius.circular(widget.height)),
+                  color: widget.backgroundColorEnd != null ? this
+                      .calculateBackground() : widget.foregroundColor,
                 ),
-                child: widget.sliderButtonContent,
               ),
             ),
           ),
+          Visibility(
+            visible: !isFinish,
+            child: AnimatedPositioned(
+              duration: Duration(milliseconds: _duration),
+              curve: Curves.bounceOut,
+              left: getPosition(),
+              top: 0,
+              child: GestureDetector(
+                onTapDown: (_) =>
+                widget.onTapDown != null
+                    ? widget.onTapDown!()
+                    : null,
+                onTapUp: (_) =>
+                widget.onTapUp != null
+                    ? widget.onTapUp!()
+                    : null,
+                onPanUpdate: (details) {
+                  updatePosition(details);
+                },
+                onPanEnd: (details) {
+                  if (widget.onTapUp != null) widget.onTapUp!();
+                  if(!isFinish) sliderReleased(details);
+                },
+                child: Container(
+                  height: widget.height,
+                  width: widget.height,
+                  decoration: BoxDecoration(
+                    borderRadius: widget.foregroundShape ??
+                        BorderRadius.all(Radius.circular(widget.height / 2)),
+                    color: widget.foregroundColor,
+                  ),
+                  child: widget.sliderButtonContent,
+                ),
+              ),
+            ),
+          ),
+          Visibility(
+              visible: getPosition() + widget.height == widget.width,
+              child: AnimatedPositioned(
+                  duration: Duration(milliseconds: 1000),
+                  curve: Curves.bounceOut,
+                  left: 0,
+                  top: 0,
+                  child: AnimatedContainer(
+                    height: widget.height,
+                    width: getPosition() + widget.height,
+                    curve: Curves.ease,
+                    decoration: BoxDecoration(
+                      borderRadius: widget.backgroundShape ??
+                          BorderRadius.all(Radius.circular(widget.height)),
+                      color: Color(0xff1AD268).withOpacity(0.2),
+                    ),
+                    duration: Duration(milliseconds: 1000),
+                    child: Center(
+                      child: Text("Đã xác thực", style: TextStyle(fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xff1AD268)),
+                      ),),)
+              ))
         ],
       ),
     );
