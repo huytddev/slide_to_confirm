@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ConfirmationSlider extends StatefulWidget {
   /// Height of the slider. Defaults to 70.
@@ -143,6 +144,15 @@ class ConfirmationSliderState extends State<ConfirmationSlider> {
     }
   }
 
+  void callback(bool isFinish) {
+    if(isFinish){
+      Future.delayed(const Duration(seconds: 2), () {
+        widget.onConfirmation();
+      });
+
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     BoxShadow shadow;
@@ -167,6 +177,7 @@ class ConfirmationSliderState extends State<ConfirmationSlider> {
       style = widget.textStyle!;
     }
     bool isFinish = getPosition() + widget.height == widget.width;
+    callback(isFinish);
     return AnimatedContainer(
       duration: Duration(milliseconds: _duration),
       curve: Curves.ease,
@@ -230,7 +241,10 @@ class ConfirmationSliderState extends State<ConfirmationSlider> {
                 },
                 onPanEnd: (details) {
                   if (widget.onTapUp != null) widget.onTapUp!();
-                  if(!isFinish) sliderReleased(details);
+                  if (!isFinish){
+                    sliderReleased(details);
+                  }
+
                 },
                 child: Container(
                   height: widget.height,
@@ -253,20 +267,20 @@ class ConfirmationSliderState extends State<ConfirmationSlider> {
                   left: 0,
                   top: 0,
                   child: AnimatedContainer(
-                    height: widget.height,
-                    width: getPosition() + widget.height,
-                    curve: Curves.ease,
-                    decoration: BoxDecoration(
-                      borderRadius: widget.backgroundShape ??
-                          BorderRadius.all(Radius.circular(widget.height)),
-                      color: Color(0xff1AD268).withOpacity(0.2),
-                    ),
-                    duration: Duration(milliseconds: 1000),
-                    child: Center(
-                      child: Text("Đã xác thực", style: TextStyle(fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xff1AD268)),
-                      ),),)
+                      height: widget.height,
+                      width: getPosition() + widget.height,
+                      curve: Curves.ease,
+                      decoration: BoxDecoration(
+                        borderRadius: widget.backgroundShape ??
+                            BorderRadius.all(Radius.circular(widget.height)),
+                        color: Color(0xff1AD268).withOpacity(0.2),
+                      ),
+                      duration: Duration(milliseconds: 1000),
+                      child: Center(
+                        child: Text("Đã xác thực", style: TextStyle(fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xff1AD268)),
+                        )))
               ))
         ],
       ),
